@@ -1,198 +1,142 @@
 # VaultSnap
 
 A **local-only**, offline-first password manager for Android. No cloud, no
-accounts, no telemetry, no analytics. Your vault never leaves the device —
-the release build doesn't even request the `INTERNET` permission, so the
-operating system itself blocks any network call.
+accounts, no telemetry. Your vault never leaves the device — the release
+build does not request the `INTERNET` permission, so the operating system
+itself blocks any network call.
 
-Built with Flutter / Kotlin. Android-first, iOS-capable.
+Built with Flutter and Kotlin. Material 3, Android 8.0+ (`minSdk` 26).
+
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
 ## Features
 
-- **Encrypted vault** — entries' sensitive fields (passwords, TOTP secrets,
-  attachments) are encrypted under a 256-bit AES-GCM key derived from your
-  master password (Argon2id).
-- **Android Autofill** — fills usernames/passwords into other apps and
-  browsers. The autofill service is local-only and supports per-entry
-  Android-package or website links.
-- **TOTP / Authenticator** — RFC 6238 codes from `otpauth://` URIs. SHA-1 /
-  SHA-256 / SHA-512, 6 / 8 digits, 30 / 60 second periods.
-- **Encrypted attachments** — store IDs, recovery codes, passport scans
-  inside the vault. Image preview built in; other formats export through
-  Android's Storage Access Framework.
-- **Biometric unlock** — fingerprint / face unlock backed by an Android
+- **Encrypted vault** — passwords, TOTP secrets, and attachments encrypted
+  with AES-GCM-256 under a Vault Master Key derived from your master
+  password via Argon2id.
+- **Android Autofill** — fills usernames and passwords into other apps and
+  browsers. Per-entry website or Android-package linking.
+- **TOTP / Authenticator** — RFC 6238 codes from `otpauth://` URIs.
+  Supports SHA-1 / SHA-256 / SHA-512, 6 or 8 digits, 30 or 60 second
+  periods.
+- **Encrypted attachments** — store IDs, recovery codes, and scanned
+  documents inside the vault. Built-in image viewer; other formats export
+  through Android Storage Access Framework.
+- **Biometric unlock** — fingerprint or face unlock backed by an Android
   Keystore key. Your biometric never leaves the secure hardware.
-- **Encrypted backups** (`.vsb`) — re-encrypted under a separate
-  backup-password-derived key. Verify a backup decrypts correctly *before*
-  you trust it (Settings → Verify backup).
-- **Recovery question** — separate KDF salt unlocks the same VMK if you
+- **Encrypted backups** (`.vsb`) — encrypted under a separate
+  backup-password-derived key. Verify a backup decrypts correctly before
+  trusting it.
+- **Recovery question** — separate key path unlocks the same VMK if you
   forget your master password.
-- **Auto-lock** — wall-clock-aware timer, locks immediately when the app
-  goes to the background, scrubs the VMK from RAM.
+- **Auto-lock** — wall-clock timer, locks immediately on background, wipes
+  the master key from RAM.
 
-## Threat model (short version)
+## Threat model
 
-The full plain-language threat model is in the app: Settings → "How
-VaultSnap stores your data". Three-bullet summary:
+The full plain-language threat model is in the app: **Settings → How
+VaultSnap stores your data**. Summary:
 
 - **Cleartext on disk:** entry names, usernames, URLs, and linked Android
-  package IDs. Required so list / search / autofill work without unlocking.
-- **Encrypted on disk:** passwords, TOTP secrets, attachment bytes, the
-  KDF-wrapped VMK. Useless without the master password.
-- **Recoverable:** if you remember the master password OR the recovery
-  answer. If you forget both, the vault is unrecoverable — by design.
+  package IDs. Required so list, search, and autofill work without
+  unlocking.
+- **Encrypted on disk:** passwords, TOTP secrets, attachment bytes, and
+  the wrapped Vault Master Key. Useless without the master password.
+- **Recoverable:** if you remember the master password *or* the recovery
+  answer. If you forget both, the vault is unrecoverable by design.
 
-## Build
+## Install
+
+Download the latest signed APK from
+[Releases](https://github.com/cedsceds-12/vaultsnap/releases) and sideload
+on Android 8.0+.
+
+Verify the download:
+
+```bash
+sha256sum VaultSnap-v1.0.0.apk
+```
+
+The SHA-256 hash is listed on each release page.
+
+## Build from source
 
 ### Prerequisites
 
-- Flutter 3.11.5 or newer (`flutter --version`)
+- Flutter 3.11.5 or newer
 - JDK 17
-- Android SDK with API 34+ (set via Android Studio's SDK Manager)
-- `minSdk` is 26 (Android 8.0 — required by the Autofill API)
+- Android SDK with API 34+
+- `minSdk` 26 (Android 8.0+, required by the Autofill API)
 
-### Run debug
+### Build
 
 ```bash
-cd vault_snap
+git clone https://github.com/cedsceds-12/vaultsnap.git
+cd vaultsnap
 flutter pub get
-flutter run
-```
-
-### Build release
-
-Play Store submissions ship as Android App Bundle (`.aab`):
-
-```bash
-cd vault_snap
-flutter build appbundle --release
-# Output: build/app/outputs/bundle/release/app-release.aab
-```
-
-For sideloading or local QA you can also build an APK:
-
-```bash
-flutter build apk --release
-# Output: build/app/outputs/flutter-apk/app-release.apk
+flutter run                   # debug
+flutter build apk --release   # signed release APK
 ```
 
 The release build runs through R8 (code shrinking + resource shrinking +
 obfuscation). Keep rules live in `android/app/proguard-rules.pro`.
 
-### Verifying the release build is offline
+## Verify the no-network guarantee
 
-VaultSnap's headline guarantee is that the release build cannot make
-network calls. Verify before every release:
+VaultSnap's headline claim is that the release build cannot make network
+calls. The repository ships a script that proves it:
 
 ```powershell
-# Windows / PowerShell
+# Windows
 pwsh ./scripts/verify_release_manifest.ps1
 ```
 
 ```bash
-# macOS / Linux
+# Linux / macOS
 ./scripts/verify_release_manifest.sh
 ```
 
-The script builds a release APK and parses the merged
-`AndroidManifest.xml` for `<uses-permission>` entries. The allowlist:
+The script builds a release APK and asserts the merged
+`AndroidManifest.xml` contains only `USE_BIOMETRIC` (plus benign
+auto-added entries from `local_auth` and AndroidX). Any other permission
+— especially `INTERNET`, `ACCESS_NETWORK_STATE`, `READ_*`, `WRITE_*`,
+`CAMERA`, `RECORD_AUDIO` — fails the script with a non-zero exit.
 
-- `android.permission.USE_BIOMETRIC` — declared by VaultSnap.
-- `android.permission.USE_FINGERPRINT` — auto-added by the `local_auth`
-  plugin for the pre-API-28 fingerprint API. Biometric only.
-- `<package>.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION` —
-  AndroidX-generated, scoped to our own package, gates internal
-  broadcast receivers.
-
-Anything else — especially `INTERNET`, `ACCESS_NETWORK_STATE`,
-`READ_*`, `WRITE_*`, `CAMERA`, `RECORD_AUDIO` — fails the script
-with a non-zero exit.
-
-Belt-and-braces sanity check on a built APK:
+Quick sanity check on a published APK:
 
 ```bash
-aapt dump permissions build/app/outputs/flutter-apk/app-release.apk
+aapt dump permissions VaultSnap-v1.0.0.apk
 ```
 
-## Signing for release
-
-Release builds use the upload-key path when `android/keystore.properties`
-exists, and fall back to the debug key otherwise (so contributors can
-`flutter run --release` without a keystore).
-
-### One-time setup
-
-```bash
-# Generate the upload keystore. Run from the repo root.
-keytool -genkey -v \
-        -keystore vault_snap/android/upload-keystore.jks \
-        -keyalg RSA -keysize 2048 -validity 10000 \
-        -alias upload
-```
-
-Copy the template:
-
-```bash
-cp vault_snap/android/keystore.properties.example \
-   vault_snap/android/keystore.properties
-```
-
-Fill in the real values:
-
-```properties
-storeFile=../upload-keystore.jks
-storePassword=YOUR_STORE_PASSWORD
-keyAlias=upload
-keyPassword=YOUR_KEY_PASSWORD
-```
-
-Both `keystore.properties` and `*.jks` are gitignored. **Never** commit
-either. Lose either and you lose the ability to push updates to your Play
-Store listing — back them up offline.
-
-After uploading the first AAB to Play Console, enrol in **Play App
-Signing**. Google then re-signs with the actual app-signing key on their
-side; your upload key only signs uploads to Google.
+You will not find `android.permission.INTERNET`. By design.
 
 ## Project layout
 
 ```
-vault_snap/
-├── lib/
-│   ├── screens/        Full-screen pages
-│   ├── widgets/        Reusable widgets (lock scope, entry tile, sheets)
-│   ├── services/       Crypto, storage, autofill, clipboard, backup, etc.
-│   ├── providers/      Riverpod providers
-│   ├── models/         VaultMeta, VaultEntry, FieldSpec, EntryCategory
-│   ├── theme/          Material 3 theme — only place hex literals live
-│   └── navigation/     Root navigator key (pop-to-root on lock)
-├── android/
-│   └── app/src/main/kotlin/com/vaultsnap/app/
-│                       Autofill service + RSA-OAEP bridge + MainActivity
-├── test/               Dart tests (unit + widget). 120 tests at last count.
-├── scripts/            verify_release_manifest.{ps1,sh}
-├── store/              Play Store listing copy + privacy policy + Data Safety
-├── ROADMAP.md          Phase-by-phase progress
-├── QA_CHECKLIST.md     Pre-release manual test pass
-└── pubspec.yaml
+lib/
+├── screens/        Full-screen pages
+├── widgets/        Reusable widgets
+├── services/       Crypto, storage, autofill, clipboard, backup
+├── providers/      Riverpod providers
+├── models/         VaultMeta, VaultEntry, FieldSpec, EntryCategory
+├── theme/          Material 3 theme
+└── navigation/     Root navigator key
+
+android/app/src/main/kotlin/com/vaultsnap/app/
+                    Autofill service + RSA-OAEP bridge + MainActivity
+
+test/               120 unit and widget tests
+scripts/            verify_release_manifest.{ps1,sh}
 ```
 
 ## Tests
 
 ```bash
-cd vault_snap
-flutter test              # all tests (~120)
-flutter test test/services/totp_service_test.dart   # single file
-flutter analyze           # lint pass
+flutter analyze
+flutter test
+flutter test test/services/totp_service_test.dart   # one file
 ```
 
-## Contributing
+## License
 
-Read [`CLAUDE.md`](../CLAUDE.md) at the repo root for the full conventions
-(state-management split, no-network invariant, sensitive-logging rules,
-testing requirements, end-of-turn checklist). The cursor mirror lives at
-`.cursor/rules/vaultsnap.mdc`.
-
-## Licence
-
-TBD — pick before tagging 1.0.
+MIT — see [LICENSE](LICENSE).
