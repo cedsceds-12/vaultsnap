@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- One row in the VaultSnap autofill drop-down. Two-line design:
+     generic key icon · entry name (bold) over username preview (dim).
+     The key icon (NOT the launcher logo) keeps the picker from looking
+     like a wall of duplicate VaultSnap badges when there are multiple
+     matches — same convention 1Password / Bitwarden / Apple Passwords
+     follow (brand mark only in the header, generic credential icon on
+     each row). -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:gravity="center_vertical"
+    android:background="@drawable/autofill_row_bg"
+    android:paddingStart="14dp"
+    android:paddingEnd="14dp"
+    android:paddingTop="10dp"
+    android:paddingBottom="10dp">
+
+    <FrameLayout
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:background="@drawable/autofill_brand_circle"
+        android:layout_marginEnd="12dp">
+
+        <ImageView
+            android:id="@+id/autofill_icon"
+            android:layout_width="22dp"
+            android:layout_height="22dp"
+            android:layout_gravity="center"
+            android:src="@drawable/ic_autofill_key"
+            android:tint="@color/autofill_brand"
+            android:contentDescription="@null" />
+    </FrameLayout>
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_weight="1"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/autofill_label"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:singleLine="true"
+            android:ellipsize="end"
+            android:textSize="15sp"
+            android:textStyle="bold"
+            android:textColor="@color/autofill_text" />
+
+        <TextView
+            android:id="@+id/autofill_subtitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:singleLine="true"
+            android:ellipsize="end"
+            android:textSize="12sp"
+            android:textColor="@color/autofill_text_dim"
+            android:layout_marginTop="1dp" />
+    </LinearLayout>
+</LinearLayout>

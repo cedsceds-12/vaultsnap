@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Pressed-state background for an autofill dataset row. RemoteViews
+     supports state-list drawables for setBackgroundResource on a row's
+     root LinearLayout, giving the suggestion list a subtle press feedback
+     in the autofill drop-down. -->
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:state_pressed="true" android:drawable="@color/autofill_bg_pressed" />
+    <item android:drawable="@color/autofill_bg" />
+</selector>

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="splash_bg">#FFF6F8FB</color>
+    <color name="splash_brand">#FF0EA5E9</color>
+
+    <!-- Autofill drop-down (light). Matches lib/theme/app_theme.dart light scheme:
+         surfaceContainerHigh = #DBE4EE, primary = #0284C7, onSurface = #1A1A1A. -->
+    <color name="autofill_bg">#FFF6FAFD</color>
+    <color name="autofill_bg_pressed">#FFE3EBF3</color>
+    <color name="autofill_text">#FF101828</color>
+    <color name="autofill_text_dim">#FF475467</color>
+    <color name="autofill_brand">#FF0284C7</color>
+    <color name="autofill_brand_bg">#FFE0F2FE</color>
+    <color name="autofill_divider">#FFD0D7E0</color>
+</resources>

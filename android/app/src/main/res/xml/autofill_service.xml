@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Inline suggestions support is intentionally NOT declared until the
+    InlinePresentation plumbing in presentation/DatasetBuilder.kt actually
+    builds Slice content. Declaring supportsInlineSuggestions="true" while the
+    code only emits popup datasets makes the framework solicit inline specs we
+    never use, which is wasteful and noisy in logs.
+-->
+<autofill-service xmlns:android="http://schemas.android.com/apk/res/android" />

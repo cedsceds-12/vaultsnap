@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Splash mark — wraps the launcher mipmap so the splash and the
+     home-screen launcher icon match exactly. Previously a hand-drawn
+     vector shield; now points at the real branded icon so the brief
+     splash → home-screen handoff is visually seamless. -->
+<bitmap xmlns:android="http://schemas.android.com/apk/res/android"
+    android:src="@mipmap/ic_launcher"
+    android:gravity="center" />

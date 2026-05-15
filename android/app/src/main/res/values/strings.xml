@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="autofill_unlock_prompt">Unlock VaultSnap</string>
+    <string name="autofill_unlock_subtitle">Tap to autofill</string>
+    <string name="autofill_brand_name">VaultSnap</string>
+    <string name="autofill_no_username">No username</string>
+</resources>
