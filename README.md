@@ -1,4 +1,16 @@
-# VaultSnap
+<p align="center">
+  <img src="assets/icon.png" alt="VaultSnap" width="128" height="128"/>
+</p>
+
+<h1 align="center">VaultSnap</h1>
+
+<p align="center">
+  <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="License: MIT"/></a>
+  <a href="https://github.com/cedsceds-12/vaultsnap/releases/latest"><img src="https://img.shields.io/github/v/release/cedsceds-12/vaultsnap?label=release" alt="Latest release"/></a>
+  <a href="https://github.com/cedsceds-12/vaultsnap/releases"><img src="https://img.shields.io/github/downloads/cedsceds-12/vaultsnap/total" alt="Downloads"/></a>
+  <img src="https://img.shields.io/badge/platform-Android-3DDC84?logo=android&logoColor=white" alt="Android"/>
+  <img src="https://img.shields.io/badge/Flutter-3.11%2B-02569B?logo=flutter&logoColor=white" alt="Flutter"/>
+</p>
 
 A **local-only**, offline-first password manager for Android. No cloud, no
 accounts, no telemetry. Your vault never leaves the device — the release
@@ -6,8 +18,6 @@ build does not request the `INTERNET` permission, so the operating system
 itself blocks any network call.
 
 Built with Flutter and Kotlin. Material 3, Android 8.0+ (`minSdk` 26).
-
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
 ## Features
 
